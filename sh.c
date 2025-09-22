@@ -25,12 +25,15 @@ The group members declare that they have not copied material from the Internet
 Fill in the lines below with the name and email of the group members.
 Replace XX with the contribution of each group member in the development of the work.
 
-Lucas Momede Barreto Rezende <lucasmbr@ufmg.br> XX%
+Lucas Momede Barreto Rezende <lucasmbr@ufmg.br> Fix fork1%
 Luiza Sodré Salgado <email@ufmg.br> XX%
 
 3. Solutions
 
-- Fork:  
+- Fork:
+    * Implementação *
+    1. Criação de novo processo usando pit_t (a signed integer type which is capable of representing a process ID).
+    2. Se o fork falhar, imprime uma mensagem e retorna -1. Caso contrário retorna o ID do processo filho
 
 4. Bibliographic references
 
@@ -124,15 +127,8 @@ int fork1(void) {
     It should print a message if the fork fails, otherwise return the process ID of the child process (or -1 if the fork fails).
     */
 
-    // Criação de signed integer type which is capable of representing a process ID
-    pid_t pid;
-
-    // Se fork() < 0, significa que o processo criado não pode ser duplicado e nenhum filho foi gerado
-    if((pid = fork()) < 0) {
-        perror("erro na criação do filho");
-        exit(EXIT_FAILURE); 
-    }
-    return pid;
+    pid_t pid = fork();
+    return (pid < 0) ? -1 : pid;
 
     /* END OF TASK 1 */
 }
