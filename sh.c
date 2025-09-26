@@ -25,7 +25,7 @@ The group members declare that they have not copied material from the Internet
 Fill in the lines below with the name and email of the group members.
 Replace XX with the contribution of each group member in the development of the work.
 
-Lucas Momede Barreto Rezende <lucasmbr@ufmg.br> Fix fork1%
+Lucas Momede Barreto Rezende <lucasmbr@ufmg.br> Fix fork1, Implemented handle%
 Luiza Sodré Salgado <email@ufmg.br> XX%
 
 3. Solutions
@@ -35,10 +35,15 @@ Luiza Sodré Salgado <email@ufmg.br> XX%
     1. Criação de novo processo usando pit_t (a signed integer type which is capable of representing a process ID).
     2. Se o fork falhar, imprime uma mensagem e retorna -1. Caso contrário retorna o ID do processo filho
 
+- handle_simple_cmd:
+    * Implementação *
+    Esse método é chamado pelo runcmd no case ' ' e passa como argumento o nome do comando (ls, cat, ps, i.e., comandos sem pipe e redirecionamento). Como o runcmd previamente verifica se o comando é nulo (if (ecmd->argv[0] == 0)), basta usar execvp (function in C that replaces the current process with a new one, taking a file name and argument list).
+
 4. Bibliographic references
 
 - [Process Identification] https://ftp.gnu.org/old-gnu/Manuals/glibc-2.2.3/html_node/libc_554.html
 - [Where do I put perror("wait") with fork code] https://stackoverflow.com/questions/49419299/where-do-i-put-perrorwait-with-fork-code
+- [execvp(3): execute file - Linux man page] https://linux.die.net/man/3/execvp
 
 */
 
@@ -98,7 +103,7 @@ void runcmd(struct cmd *cmd) {
         default:
             fprintf(stderr, "Unknown command type\n");
             exit(-1);
-
+            
         case ' ':
             ecmd = (struct execcmd *)cmd;
             if (ecmd->argv[0] == 0)
@@ -135,7 +140,11 @@ int fork1(void) {
 
 void handle_simple_cmd(struct execcmd *ecmd) {
     /* Task 2: Implement the code below to execute simple commands. */
-    fprintf(stderr, "exec not implemented\n");
+
+    fork1() == 0
+        ? (execvp(ecmd->argv[0], ecmd->argv), perror("execvp failed"), exit(1))
+        : wait(NULL);
+    
     /* END OF TASK 2 */
 }
 
