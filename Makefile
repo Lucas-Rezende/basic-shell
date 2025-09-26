@@ -13,3 +13,11 @@ run: build
 
 clean:
 	rm -f $(TARGET)
+
+unit:
+	@echo "--- Running Unit Tests ---"
+	@for test_script in unit_tests/*.sh; do \
+		echo "Executing $$test_script..."; \
+		/bin/bash $$test_script || exit 1; \
+	done
+	@echo "--- All tests passed successfully! ---"	
