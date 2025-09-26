@@ -25,7 +25,7 @@ The group members declare that they have not copied material from the Internet
 Fill in the lines below with the name and email of the group members.
 Replace XX with the contribution of each group member in the development of the work.
 
-Lucas Momede Barreto Rezende <lucasmbr@ufmg.br> Fix fork1, Implemented handle%
+Lucas Momede Barreto Rezende <lucasmbr@ufmg.br> Fix fork1, Implemented handle, Answered and fixed task 5%
 Luiza Sodré Salgado <email@ufmg.br> XX%
 
 3. Solutions
@@ -179,12 +179,14 @@ int main(void) {
         /* Task 5: Explain the purpose of the if statement below and correct the error message.
         Why is the current error message incorrect? Justify the new message. */
         /* Answer:
-
+        O propósito do if, conforme a documentação dada por 'help cd', é implementar a troca de diretório usando o comando cd [-L|[-P [-e]] [-@]] [dir], i.e., "change the working directory of the current shell execution environment". Logo, o cd não pode ser executado num processo filho, pois se isso fosse feito o diretório do processo pai não seria alterado.
+        
+        Nesse sentido, a mensagem de erro está incorreta pois afirma que o processo não existe, quando na realidade o problema é que o diretório não pode ser acessado/encontrado. No que tange a correção da mensagem, é adequado usar "No such file or directory" como mensagem de erro, pois é a mensagem de erro padrão usada no bash e explica de fato o problema que está ocorrendo.
          */
         if (buf[0] == 'c' && buf[1] == 'd' && buf[2] == ' ') {
             buf[strlen(buf) - 1] = 0;
             if (chdir(buf + 3) < 0)
-                fprintf(stderr, "process does not exist\n");
+                fprintf(stderr, "No such file or directory\n");                
             continue;
         }
         /* END OF TASK 5 */
