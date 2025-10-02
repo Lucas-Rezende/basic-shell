@@ -32,7 +32,7 @@ Luiza Sodré Salgado <email@ufmg.br> XX%
 
 - Fork:
     * Implementação *
-    1. Criação de novo processo usando pit_t (a signed integer type which is capable of representing a process ID).
+    1. Criação de novo processo usando pid_t (a signed integer type which is capable of representing a process ID).
     2. Se o fork falhar, imprime uma mensagem e retorna -1. Caso contrário retorna o ID do processo filho
 
 - handle_simple_cmd:
