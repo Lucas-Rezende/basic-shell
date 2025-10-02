@@ -25,20 +25,22 @@ The group members declare that they have not copied material from the Internet
 Fill in the lines below with the name and email of the group members.
 Replace XX with the contribution of each group member in the development of the work.
 
-Lucas Momede Barreto Rezende <lucasmbr@ufmg.br> Fix fork1, Implemented handle, Answered and fixed task 5%
+Lucas Momede Barreto Rezende <lucasmbr@ufmg.br> Fixed fork1, Implemented handle_simple_cmd, Answered and fixed Task 5%
 Luiza Sodré Salgado <luiza-salgado@ufmg.br> Implemented handle_redirection and the pipe%
 
 3. Solutions
 
+Acesse a documentação em: https://docs.google.com/document/d/1OLp0pE8b0Z-ulslhRmYwqf_qvD-dsTLcmGDZiTb_pFU/edit?usp=sharing
+
 - Fork:
     * Implementação *
-    1. Criação de novo processo usando pid_t (a signed integer type which is capable of representing a process ID).
-    2. Se o fork falhar, imprime uma mensagem e retorna -1. Caso contrário retorna o ID do processo filho
+    1. O fork() é usado para criar um novo processo. Nesse sentido, fork() retorna o ID do processo, armazenando-o em pid_t (a signed integer type which is capable of representing a process ID).
+    2. Se o fork falhar, é retornado -1. Caso contrário retorna o ID do processo filho
+    A corretude dessa função foi necessária para criar novos processos.
 
 - handle_simple_cmd:
     * Implementação *
-    Esse método é chamado pelo runcmd no case ' ' e passa como argumento o nome do comando (ls, cat, ps, i.e., comandos sem pipe e redirecionamento). 
-    Como o runcmd previamente verifica se o comando é nulo (if (ecmd->argv[0] == 0)), basta usar execvp (function in C that replaces the current process with a new one, taking a file name and argument list).
+    A função handle_simple_cmd executa comandos simples (sem pipes ou redirecionamentos). Ela é chamada pelo runcmd quando detecta esse tipo de comando. O processo pai cria um filho com fork1(). No processo filho, execvp substitui a imagem do processo pelo comando indicado (ex.: ls, cat, etc.). Se execvp falhar, imprime uma mensagem de erro e encerra com exit(1). O processo pai aguarda a finalização do filho usando wait(NULL). Como o runcmd previamente verifica se o comando é nulo (if (ecmd->argv[0] == 0)), basta usar execvp (function in C that replaces the current process with a new one, taking a file name and argument list).
 
 - handle_redirection: 
     * Implementação *
@@ -51,12 +53,12 @@ Luiza Sodré Salgado <luiza-salgado@ufmg.br> Implemented handle_redirection and 
     Cria um pipe. Isso cria dois descritores de arquivo em p: p[0] para leitura e p[1] para escrita.
     Um fork() cria um novo processo.
     No processo filho (pcmd->left):
-    Redireciona saída padrão (stdout) para a ponta de escrita do pipe (p[1]). Para isso, fecha o stdout (close(1)) e duplica p[1] usando dup2(p[1], 1).
-    Fecha as pontas do pipe que não serão usadas (close(p[0]) e close(p[1])).
+        - Redireciona saída padrão (stdout) para a ponta de escrita do pipe (p[1]). Para isso, fecha o stdout (close(1)) e duplica p[1] usando dup2(p[1], 1).
+        - Fecha as pontas do pipe que não serão usadas (close(p[0]) e close(p[1])).
     No processo pai (pcmd->right):
-    Redireciona sua entrada padrão (stdin) para a ponta de leitura do pipe (p[0]). Para isso, fecha o stdin (close(0)) e duplica p[0] usando dup2(p[0], 0).
-    Fecha as pontas do pipe que não serão usadas (close(p[0]) e close(p[1])).
-    O pai espera o filho terminar com wait().
+        - Redireciona sua entrada padrão (stdin) para a ponta de leitura do pipe (p[0]). Para isso, fecha o stdin (close(0)) e duplica p[0] usando dup2(p[0], 0).
+        - Fecha as pontas do pipe que não serão usadas (close(p[0]) e close(p[1])).
+        - O pai espera o filho terminar com wait().
     
 4. Bibliographic references
 
