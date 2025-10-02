@@ -26,7 +26,7 @@ Fill in the lines below with the name and email of the group members.
 Replace XX with the contribution of each group member in the development of the work.
 
 Lucas Momede Barreto Rezende <lucasmbr@ufmg.br> Fix fork1, Implemented handle, Answered and fixed task 5%
-Luiza Sodré Salgado <email@ufmg.br> XX%
+Luiza Sodré Salgado <luiza-salgado@ufmg.br> Implemented handle_redirection and the pipe%
 
 3. Solutions
 
@@ -37,8 +37,27 @@ Luiza Sodré Salgado <email@ufmg.br> XX%
 
 - handle_simple_cmd:
     * Implementação *
-    Esse método é chamado pelo runcmd no case ' ' e passa como argumento o nome do comando (ls, cat, ps, i.e., comandos sem pipe e redirecionamento). Como o runcmd previamente verifica se o comando é nulo (if (ecmd->argv[0] == 0)), basta usar execvp (function in C that replaces the current process with a new one, taking a file name and argument list).
+    Esse método é chamado pelo runcmd no case ' ' e passa como argumento o nome do comando (ls, cat, ps, i.e., comandos sem pipe e redirecionamento). 
+    Como o runcmd previamente verifica se o comando é nulo (if (ecmd->argv[0] == 0)), basta usar execvp (function in C that replaces the current process with a new one, taking a file name and argument list).
 
+- handle_redirection: 
+    * Implementação *
+    Fecha o descritor de arquivo padrão que será substituído.
+    Abre o arquivo especificado em rcmd->file com as permissões corretas (rcmd->mode).
+    Se o open falhar, imprime uma mensagem de erro e sai.
+
+- handle_pipe: 
+    * Implementação *
+    Cria um pipe. Isso cria dois descritores de arquivo em p: p[0] para leitura e p[1] para escrita.
+    Um fork() cria um novo processo.
+    No processo filho (pcmd->left):
+    Redireciona saída padrão (stdout) para a ponta de escrita do pipe (p[1]). Para isso, fecha o stdout (close(1)) e duplica p[1] usando dup2(p[1], 1).
+    Fecha as pontas do pipe que não serão usadas (close(p[0]) e close(p[1])).
+    No processo pai (pcmd->right):
+    Redireciona sua entrada padrão (stdin) para a ponta de leitura do pipe (p[0]). Para isso, fecha o stdin (close(0)) e duplica p[0] usando dup2(p[0], 0).
+    Fecha as pontas do pipe que não serão usadas (close(p[0]) e close(p[1])).
+    O pai espera o filho terminar com wait().
+    
 4. Bibliographic references
 
 - [Process Identification] https://ftp.gnu.org/old-gnu/Manuals/glibc-2.2.3/html_node/libc_554.html
@@ -133,7 +152,11 @@ int fork1(void) {
     */
 
     pid_t pid = fork();
-    return (pid < 0) ? -1 : pid;
+    if (pid < 0) {
+        perror("Fork failed\n");
+    }
+
+    return pid;
 
     /* END OF TASK 1 */
 }
@@ -150,13 +173,41 @@ void handle_simple_cmd(struct execcmd *ecmd) {
 
 void handle_redirection(struct redircmd *rcmd) {
     /* Task 3: Implement the code below to handle input/output redirection. */
-    fprintf(stderr, "redir not implemented\n");
+    close(rcmd->fd);
+    if (open(rcmd->file, rcmd->mode, 0666) < 0) {
+        fprintf(stderr, "error opening %s\n", rcmd->file);
+        exit(1);
+    }
     /* END OF TASK 3 */
 }
 
 void handle_pipe(struct pipecmd *pcmd, int *p, int r) {
     /* Task 4: Implement the code below to handle pipes. */
-    fprintf(stderr, "pipe not implemented\n");
+    if (pipe(p) < 0) {
+        perror("Pipe error\n");
+        exit(1);
+    }
+
+    if (fork1() == 0) {
+        close(1);
+        dup(p[1]);
+        close(p[0]);
+        close(p[1]);
+        runcmd(pcmd->left);
+    }
+
+    if (fork1() == 0) {
+        close(0);
+        dup(p[0]);
+        close(p[0]);
+        close(p[1]);
+        runcmd(pcmd->right);
+    }
+
+    close(p[0]);
+    close(p[1]);
+    wait(&r);
+    wait(&r);
     /* END OF TASK 4 */
 }
 
